@@ -1,4 +1,4 @@
-package hibernate.unidirectional_many_to_one_relation;
+package hibernate._3_unidirectional_many_to_one_relation;
 
 import java.util.Properties;
 
@@ -19,6 +19,8 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.service.ServiceRegistry;
 
+import common.constants.Constant;
+
 class HibernateUtil {
 
 	private static SessionFactory sessionFactory;
@@ -29,16 +31,19 @@ class HibernateUtil {
 			return sessionFactory;
 
 		Properties properties = new Properties();
-		properties.put(Environment.URL, "jdbc:mysql://localhost:3306/code_snippet");
-		properties.put(Environment.USER, "root");
-		properties.put(Environment.PASS, "System");
+		properties.put(Environment.URL, Constant.DB_URL);
+		properties.put(Environment.USER, Constant.DB_USERNAME);
+		properties.put(Environment.PASS, Constant.DB_PASSWORD);
 		properties.put(Environment.DIALECT, "org.hibernate.dialect.MySQL8Dialect");
+		
 		properties.put(Environment.SHOW_SQL, "true");
 		properties.put(Environment.HBM2DDL_AUTO, "create-drop");
 
 		Configuration configuration = new Configuration();
 		configuration.setProperties(properties);
 		configuration.addAnnotatedClass(Post.class);
+		configuration.addAnnotatedClass(PostComment.class);
+
 
 		ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
 				.applySettings(configuration.getProperties()).build();
@@ -55,7 +60,7 @@ class HibernateUtil {
 class Post {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.TABLE)
 	private Long id;
 	
 	private String title;
@@ -78,7 +83,8 @@ class Post {
 	
 }
 
-
+@Entity
+@Table(name = "post_comment")
 class PostComment {
 	
 	@Id
@@ -129,10 +135,11 @@ public class Example_1 {
 		SessionFactory sf = HibernateUtil.getSessionFactory();
 		Session session = sf.openSession();
 		session.setHibernateFlushMode(FlushMode.COMMIT);
+		                                                 
 		Transaction tx = session.beginTransaction();
 
 		long id = (Long) session.save(post);
-
+		
 		System.out.println("Flush is triggered before commit time");
 
 		tx.commit();
@@ -150,14 +157,18 @@ public class Example_1 {
 		Transaction tx = session.beginTransaction();
 
 		Post post = session.get(Post.class, postId);
+		
 		PostComment comment = new PostComment();
+		comment.setReview(review);
+		comment.setPost(post);
 		
+		session.save(comment);
 		
-		
+		comment.setPost(null); //this will trigger an update statement for the post comment
+						
 		System.out.println("Flush is triggered before commit time");
 		tx.commit();
 		session.close();
-
 		
 	}
 }

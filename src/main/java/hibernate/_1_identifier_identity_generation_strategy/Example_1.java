@@ -1,4 +1,4 @@
-package hibernate.identifier_identity_generation_strategy;
+package hibernate._1_identifier_identity_generation_strategy;
 
 import java.util.Properties;
 

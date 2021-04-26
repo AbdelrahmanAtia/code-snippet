@@ -1,4 +1,4 @@
-package hibernate.identifier_sequence_generation_strategy;
+package hibernate._2_identifier_sequence_generation_strategy;
 
 import java.util.Properties;
 
@@ -68,6 +68,10 @@ class Post {
 
 public class Example_1 {
 
+	/*
+	 * this example should be tested using oracle DB instead
+	 * of MYsql cause MYsql does not support sequences
+	 */
 	public static void main(String[] args) {
 
 		int batchSize = 4;

@@ -1,4 +1,4 @@
-package hibernate._4_hibernate.bidirectional_one_to_many_relation;
+package hibernate._5_unidirectional_one_to_many_relation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +9,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -22,8 +20,8 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.service.ServiceRegistry;
-
 import common.constants.Constant;
+
 
 class HibernateUtil {
 
@@ -39,7 +37,7 @@ class HibernateUtil {
 		properties.put(Environment.USER, Constant.DB_USERNAME);
 		properties.put(Environment.PASS, Constant.DB_PASSWORD);
 		properties.put(Environment.DIALECT, "org.hibernate.dialect.MySQL8Dialect");
-		
+
 		properties.put(Environment.SHOW_SQL, "true");
 		properties.put(Environment.HBM2DDL_AUTO, "create-drop");
 
@@ -48,7 +46,6 @@ class HibernateUtil {
 		configuration.addAnnotatedClass(Post.class);
 		configuration.addAnnotatedClass(PostComment.class);
 
-
 		ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
 				.applySettings(configuration.getProperties()).build();
 
@@ -56,10 +53,7 @@ class HibernateUtil {
 		return sessionFactory;
 
 	}
-
 }
-
-
 
 @Entity
 @Table(name = "post")
@@ -71,9 +65,13 @@ class Post {
 
 	private String title;
 
-	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<PostComment> comments = new ArrayList<>();
 	
+	public Post() {
+
+	}
+
 	public Post(String title) {
 		this.title = title;
 	}
@@ -102,6 +100,10 @@ class Post {
 		this.comments = comments;
 	}
 	
+	/*
+
+	// no need for helper methods in unidirectional one-to-many relation
+	
 	public void addComment(PostComment comment) {
 		comments.add(comment);
 		comment.setPost(this);
@@ -111,8 +113,11 @@ class Post {
 		comments.remove(comment);
 		comment.setPost(null);
 	}
+	
+	*/
 
 }
+
 
 @Entity
 @Table(name = "post_comment")
@@ -123,10 +128,10 @@ class PostComment {
 	private Long id;
 
 	private String review;
-
-	@ManyToOne
-	@JoinColumn(name = "post_id")
-	private Post post;
+	
+	public PostComment() {
+		
+	}
 
 	public PostComment(String review) {
 		this.review = review;
@@ -148,45 +153,63 @@ class PostComment {
 		this.review = review;
 	}
 
-	public Post getPost() {
-		return post;
-	}
-
-	public void setPost(Post post) {
-		this.post = post;
-	}
-
 }
 
-public class Example_1 {
 
-	public static void main(String[] args) {
+
+public class Example_1 {
+	
+	public static void main(String [] args) {
+		
+		
+		//write your code here
+		
+		Post post = new Post("First Post");
+		
+		post.getComments().add(new PostComment("My first review"));
+		post.getComments().add(new PostComment("My second review"));
+		post.getComments().add(new PostComment("My third review"));
+		
+		long postId = savePost(post);
+		removeFirstComment(postId);		
+		
+	}
+	
+	
+	public static long savePost(Post post) {
 		SessionFactory sf = HibernateUtil.getSessionFactory();
 		Session session = sf.openSession();
 		session.setHibernateFlushMode(FlushMode.COMMIT);
 		Transaction tx = session.beginTransaction();
-
-		//write your code here..
 		
-		Post post = new Post("My Post");
-		//session.save(post);  //in the original vlad example this line 
-		                       // is uncommented..try uncommenting it
-		                       // and compare the generated queries
-		
-		PostComment comment1 = new PostComment("my first review");
-		post.addComment(comment1);
-
-		PostComment comment2 = new PostComment("my second review");
-		post.addComment(comment2);
-		
-		session.save(post);
-		
-		post.removeComment(comment1); // delete query is triggered cause of 
-		                              // orphan removal is true 
+		long postId = (long) session.save(post);		
 		
 		System.out.println("Flush is triggered before commit time");
 		tx.commit();
 		session.close();
+		
+		System.out.println("***************save done****************");
+		return postId;
+		
 	}
+	
+	public static void removeFirstComment(long postId) {
+
+		SessionFactory sf = HibernateUtil.getSessionFactory();
+		Session session = sf.openSession();
+		session.setHibernateFlushMode(FlushMode.COMMIT);
+		Transaction tx = session.beginTransaction();
+		
+		Post post = session.get(Post.class, postId);
+		
+		post.getComments().remove(0);
+		
+		System.out.println("Flush is triggered before commit time");
+		tx.commit();
+		session.close();
+		System.out.println("***************remove done****************");
+
+	}
+	
 
 }

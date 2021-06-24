@@ -24,6 +24,14 @@
 			<version>8.0.20</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.apache.activemq/activemq-client -->
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-client</artifactId>
+			<version>5.16.2</version>
+		</dependency>
+
+
 
 
 	</dependencies>

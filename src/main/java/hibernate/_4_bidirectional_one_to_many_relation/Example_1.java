@@ -1,4 +1,4 @@
-package hibernate._4_hibernate.bidirectional_one_to_many_relation;
+package hibernate._4_bidirectional_one_to_many_relation;
 
 import java.util.ArrayList;
 import java.util.List;

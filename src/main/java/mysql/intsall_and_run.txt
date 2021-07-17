@@ -1,0 +1,27 @@
+
+portable mysql download & install:-
+=====================================
+1- download mysql community server from the following link
+https://dev.mysql.com/downloads/
+
+2- extract the zip folder 
+
+3- open cmd in bin folder and run the following commands
+
+mysqld --initialize
+mysqld --console
+
+4- open another cmd in bin folder and connect to mysql server
+using the following command:-
+mysql -u root -h localhost -p
+
+u can get the default password from the following file >> data/US-5CG8352JCL.err
+
+5- change the default password using the following command
+alter user 'root'@'localhost' identified by 'System';
+
+6- exit mysql console using the following command then try to connect
+again with the new password.
+
+exit;
+mysql -u root -h localhost -p

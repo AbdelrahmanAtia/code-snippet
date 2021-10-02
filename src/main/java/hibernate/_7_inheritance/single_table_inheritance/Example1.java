@@ -228,7 +228,7 @@ class Announcement extends Topic {
 class TopicStatistics {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY) //i don't think that this annotation is useful because of @MapsId
 	private Long id;
 	
 	@OneToOne

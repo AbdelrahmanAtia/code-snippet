@@ -145,7 +145,7 @@ class CommandLineAppStartupRunner implements CommandLineRunner {
 }
 
 @SpringBootApplication(exclude = ActiveMQAutoConfiguration.class)
-public class UsingSpringBootExample {
+public class Example1 {
 
 	public static void main(String[] args) {
 
@@ -172,7 +172,7 @@ public class UsingSpringBootExample {
 		 */
 		//properties.put("logging.level.org.hibernate.stat", "DEBUG"); //not working!!
 		
-		SpringApplication app = new SpringApplication(Example2.class);
+		SpringApplication app = new SpringApplication(Example1.class);
 		app.setDefaultProperties(properties);
 		app.run(args);
 	}

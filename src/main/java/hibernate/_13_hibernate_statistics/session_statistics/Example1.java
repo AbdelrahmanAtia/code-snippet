@@ -1,4 +1,4 @@
-package hibernate._13_hibernate_statistics;
+package hibernate._13_hibernate_statistics.session_statistics;
 
 import java.util.Properties;
 
@@ -26,6 +26,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import common.constants.Constant;
+
 
 @Entity
 @Table(name = "post")

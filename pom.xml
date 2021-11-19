@@ -41,6 +41,10 @@
 			<version>5.16.2</version>
 		</dependency>
 
+		<dependency>
+			<groupId>io.dropwizard.metrics</groupId>
+			<artifactId>metrics-core</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
@@ -72,8 +76,8 @@
 		</dependency>
 
 		<!-- C3P0 connection pool dependencies -->
-		
-		
+
+
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-c3p0</artifactId>
@@ -84,19 +88,18 @@
 			<artifactId>c3p0</artifactId>
 			<version>0.9.5.1</version>
 		</dependency>
-		
+
 
 		<!-- Hikari connection pool dependencies -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-hikaricp</artifactId>
 		</dependency>
-	
+
 		<dependency>
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
 		</dependency>
-
 
 	</dependencies>
 </project>

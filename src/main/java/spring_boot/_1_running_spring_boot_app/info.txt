@@ -1,0 +1,43 @@
+1- On embedded container using  eclipse IDE:-
+==================================================
+  >> right click on the spring boot project
+  >> run as >> java application 
+
+2- On embedded container [tomcat] using command line :-
+==========================================================
+  >> download maven from here:- 
+     https://maven.apache.org/download.cgi
+     
+  >> download portable java if u didn't have it 
+     installed from the following path:- 
+     http://jdk.java.net/8/
+     or install it.
+     
+  >> move to the path where the pom.xml file of 
+     the project exist then run the following
+     mvn spring-boot:run
+  
+  >> if mvn is in not added to system path, then u have to qualify the command with the full path of mvn
+     as follows:-
+     C:\__apache-maven-3.8.4\bin\mvn spring-boot:run
+     also make sure that u add JAVA_HOME to system variables as follows:-
+     
+     Variable:   JAVA_HOME
+     Value:      C:\__jdk-11.0.13
+     
+     
+3- Creating the war file then running it :-
+==============================================
+
+  >> run the following command:-
+		C:\__apache-maven-3.8.4\bin\mvn package -DskipTests=true
+
+  >> execute the war by running the following command:-
+       C:\__jdk-11.0.13\bin\java -jar target/xyz.jar
+     where xyz is the generated jar name
+       
+       
+3- As a war package on a servlet container 
+===============================================
+
+	>> check book spring messaging chapter 2 page 15

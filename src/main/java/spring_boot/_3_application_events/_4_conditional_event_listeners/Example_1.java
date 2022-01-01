@@ -34,7 +34,7 @@ public class Example_1 {
 		SpringApplication app = new SpringApplication(Example_1.class);
 		app.setDefaultProperties(properties);
 
-		args = new String[] { "first arg", "second arg" };
+		//args = new String[] { "first arg", "second arg" };
 		app.run(args);
 	}
 
@@ -43,6 +43,9 @@ public class Example_1 {
 @Component
 class RestAppEventListener {
 
+	// nothing will be printed because the condition is not
+	// true..to execute that listener, u have to fill the args array
+	// with more than one value
 	@EventListener(condition = "#springApp.args.length > 1")
 	@Log(printParamsValues = true)
 	public void restAppHandler(SpringApplicationEvent springApp) {

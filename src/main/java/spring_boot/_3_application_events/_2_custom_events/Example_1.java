@@ -1,4 +1,4 @@
-package spring_boot._3_application_events.event_listeners_with_annotations;
+package spring_boot._3_application_events._2_custom_events;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -24,8 +24,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jms.activemq.ActiveMQAutoConfiguration;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.event.EventListener;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -341,14 +341,13 @@ class CurrencyConversionEvent extends ApplicationEvent {
 //======================================  Listener ================================================================//
 
 @Component
-class CurrencyConversionEventListener {
-
+class CurrencyConversionEventListener implements ApplicationListener<CurrencyConversionEvent> {
 	private static final String DASH_LINE = "===================================";
 	private static final String NEXT_LINE = "\n";
 	private static final Logger log = LoggerFactory.getLogger(CurrencyConversionEventListener.class);
 
-	@EventListener
-	public void onCurrencyConversionEvent(CurrencyConversionEvent event) {
+	@Override
+	public void onApplicationEvent(CurrencyConversionEvent event) {
 		Object obj = event.getSource();
 		StringBuilder str = new StringBuilder(NEXT_LINE);
 		str.append(DASH_LINE);
@@ -361,7 +360,9 @@ class CurrencyConversionEventListener {
 		str.append(NEXT_LINE);
 		str.append(DASH_LINE);
 		log.error(str.toString());
+
 	}
+
 }
 
 //======================================  Event Publisher ========================================//
@@ -369,30 +370,31 @@ class CurrencyConversionEventListener {
 @Aspect
 @Component
 class CurrencyConversionAudit {
-
+	
 	private ApplicationEventPublisher publisher;
-
+	
 	@Autowired
 	public CurrencyConversionAudit(ApplicationEventPublisher publisher) {
 		this.publisher = publisher;
 	}
-
-	@Pointcut("execution(* spring_boot._3_application_events.event_listeners_with_annotations.*Service.*(..))")
-	public void exceptionPointcut() {
-	}
-
-	@AfterThrowing(pointcut = "exceptionPointcut()", throwing = "ex")
-	public void badCodeException(JoinPoint jp, BadCodeRuntimeException ex) {
-
+	
+	@Pointcut("execution(* spring_boot._3_application_events._2_custom_events.*Service.*(..))")
+    public void exceptionPointcut() {}
+	
+	@AfterThrowing(pointcut="exceptionPointcut()", throwing="ex")
+	public void badCodeException(JoinPoint jp, BadCodeRuntimeException ex){
+		
 		/*
-		 * to publish an event, the system must throw a BadCodeRuntimeException to do
-		 * that, call the following url:- 
-		 * http://localhost:8080/currency/10/USDX/to/MX
+		 * to publish an event, the system must throw a BadCodeRuntimeException
+		 * to do that, call the following url:- 
+		 * http://localhost:8080/currency/10/USDX/to/MX 
+		 * 
 		 */
-
-		if (ex.getConversion() != null) {
+		
+		if(ex.getConversion()!=null){
 			publisher.publishEvent(new CurrencyConversionEvent(jp.getTarget(), ex.getMessage(), ex.getConversion()));
 		}
 	}
-
+	
 }
+

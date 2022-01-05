@@ -1,0 +1,6 @@
+URL >> http://localhost:8080/tasks
+Body >> 
+
+{
+    "name":"finsih ur bugs"
+}

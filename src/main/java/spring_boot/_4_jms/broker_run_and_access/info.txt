@@ -1,0 +1,17 @@
+ 1- to start activeMQ, run the following commands:-
+		>> cd C:\__apache-activemq-5.16.2\bin
+		>> activemq start
+		
+2- u can access activeMQ web console from the following URL:-
+      
+      >> http://localhost:8161/admin 
+      
+      
+3- if u want to use the in-memory broker, then remove these properties from 
+   the application.properties file.
+   
+   	    spring.activemq.broker-url=tcp://localhost:61616
+	    spring.activemq.user=admin
+	    spring.activemq.password=admin
+
+

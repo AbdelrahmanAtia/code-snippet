@@ -1,0 +1,36 @@
+==============================================================================================================
+
+Q1) What is chocolatey ?
+
+	chocolatey is a tool that allows us install software through command line. we will use it
+	to install the rabbitMQ
+==============================================================================================================
+Q2) How to install chocolatey ?
+
+	1- open the power shell as an administrator
+	2- run the following command >> Get-ExecutionPolicy
+	3- If it returns Restricted, then run the command >> Set-ExecutionPolicy AllSigned
+	                                   or the command >> Set-ExecutionPolicy Bypass -Scope Process
+	                                   
+	4- run the following command that installs chocolatey >> Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))                                   
+	
+	5- wait till chocolatey is installed
+	6- verify that chocolatey is installed by running the following command >> choco
+	   and u will see the version of chocolatey.
+	   
+==============================================================================================================
+Q3) How to install rabbit MQ ?
+   
+     1- first u need to install chocolaty as illustrated above.     
+     2- run the following command >>  choco install rabbitmq
+==============================================================================================================
+ Q4) How to access RabbitMQ web console ?
+ 
+     1- make sure that RabbitMQ is running by checking ur services
+     2- to access the admin web console of RabbitMQ:-
+		   URL: http://localhost:15672/
+		   Username:   guest
+		   Password:   guest
+==============================================================================================================
+   
+     

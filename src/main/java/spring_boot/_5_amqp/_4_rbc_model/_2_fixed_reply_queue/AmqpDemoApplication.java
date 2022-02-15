@@ -1,4 +1,4 @@
-package spring_boot._5_amqp._4_rbc_model_direct_replay_without_queue;
+package spring_boot._5_amqp._4_rbc_model._2_fixed_reply_queue;
 
 import java.lang.reflect.Parameter;
 import java.text.SimpleDateFormat;
@@ -17,7 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -57,8 +59,9 @@ class RpcClient {
 	private RabbitTemplate template;
 
 	@Autowired
-	public RpcClient(RabbitTemplate template) {
+	public RpcClient(RabbitTemplate template) {		
 		this.template = template;
+		
 	}
 
 	public Object sendMessage(String exchange, String routingKey, String message) {
@@ -72,10 +75,10 @@ class RpcClient {
 		// the Reply is received after timeout..
 		
 		//note that u can set the replay timeout using following function
-		//this.template.setReplyTimeout(6000);
-				
+		//this.template.setReplyTimeout(6000L); this is already done below inside the creation of rabbit 
+		//template bean
+		
 		Object response = this.template.convertSendAndReceive(exchange, routingKey, message);
-	
 		return response;
 	}
 }
@@ -102,15 +105,45 @@ class RpcServer {
 @Configuration
 @EnableConfigurationProperties(AMQPProperties.class)
 class AMQPConfig {
-	
+
+	@Autowired
+	ConnectionFactory connectionFactory;
+
+	@Value("${apress.amqp.reply-queue}")
+	String replyQueueName;
+
+	// this bean is used by the RPC client to send messages to the spring-boot-queue not
+	// the replay queue
+	@Bean
+	public RabbitTemplate fixedReplyQueueRabbitTemplate() {
+		RabbitTemplate template = new RabbitTemplate(connectionFactory);
+		template.setReplyAddress(replyQueueName);
+		template.setReplyTimeout(60000L);
+		
+		return template;
+	}
+
+	//i'm not sure what this bean really do??
+	@Bean
+	public SimpleMessageListenerContainer replyListenerContainer() {
+		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		container.setConnectionFactory(connectionFactory);
+		container.setQueues(replyQueue());
+		container.setMessageListener(fixedReplyQueueRabbitTemplate());
+		return container;
+	}
+
 	// TODO: is this bean really needed ?? if we removed it, we still can send and
 	// listen to the message..
 	@Bean
 	public Queue queue(@Value("${apress.amqp.queue}") String queueName) {
 		return new Queue(queueName, false);
 	}
-	
 
+	@Bean
+	public Queue replyQueue() {
+		return new Queue(replyQueueName, false);
+	}
 }
 
 //======================================  Properties =========================================//
@@ -212,7 +245,7 @@ class AMQPAudit {
 	private static final String NEXT_LINE = "\n";
 	private static final Logger log = LoggerFactory.getLogger("AMQPAudit");
 
-	@Pointcut("execution(* spring_boot._5_amqp._4_rbc_model_direct_replay_without_queue.*.*(..))")
+	@Pointcut("execution(* spring_boot._5_amqp._4_rbc_model._2_fixed_reply_queue.*.*(..))")
 	public void logAMQP() {
 	};
 

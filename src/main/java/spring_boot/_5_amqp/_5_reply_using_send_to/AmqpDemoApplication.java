@@ -1,4 +1,4 @@
-package spring_boot._5_amqp._4_rbc_model._2_fixed_reply_queue;
+package spring_boot._5_amqp._5_reply_using_send_to;
 
 import java.lang.reflect.Parameter;
 import java.text.SimpleDateFormat;
@@ -15,11 +15,13 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -29,78 +31,64 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.stereotype.Component;
 
 @SpringBootApplication
 public class AmqpDemoApplication {
-	
 	public static void main(String[] args) {
 		SpringApplication.run(AmqpDemoApplication.class, args);
 	}
 
+	// >> exchange is an empty string since there is no property apress.amqp.exchange
+	//    in the properties file
+	// >> routing key is similar to the queue name since we are using the default
+	// exchange type. this might change according to our needs.
 	@Bean
 	CommandLineRunner simple(@Value("${apress.amqp.exchange:}") String exchange,
-			@Value("${apress.amqp.queue}") String routingKey, RpcClient client) {
+			@Value("${apress.amqp.queue}") String routingKey, Producer producer) {
 		return args -> {
-			Object result = client.sendMessage(exchange, routingKey, "HELLO AMQP/RPC!");
-			assert result != null;
+			producer.sendMessage(exchange, routingKey, "HELLO AMQP!");
 		};
 	}
 }
 
-
 //======================================  Producer ==========================================//
 
 @Component
-class RpcClient {
-	
+class Producer {
 	private RabbitTemplate template;
 
 	@Autowired
-	public RpcClient(RabbitTemplate template) {		
+	public Producer(RabbitTemplate template) {
 		this.template = template;
-		
 	}
 
-	public Object sendMessage(String exchange, String routingKey, String message) {
-		
-		// note the difference between this function convertSendAndReceive() that does [convert-send-receive] and the 
-		// function that we used to use, which was convertAndSend () doing [convert-send] and it was not
-		// receiving any response
-		
-		// if a response is not received within a certain time period, then the response object will 
-		// be null and when the response is returned, an exception will be thrown saying that 
-		// the Reply is received after timeout..
-		
-		//note that u can set the replay timeout using following function
-		//this.template.setReplyTimeout(6000L); this is already done below inside the creation of rabbit 
-		//template bean
-		
-		Object response = this.template.convertSendAndReceive(exchange, routingKey, message);
-		return response;
+	public void sendMessage(String exchange, String routingKey, String message) {
+		this.template.convertAndSend(exchange, routingKey, message);
 	}
 }
 
 //======================================  Consumer ==========================================//
 
 @Component
-class RpcServer {
+class ReplyToService {
 	
 	@RabbitListener(queues = "${apress.amqp.queue}")
-	public Message<String> process(String message) {
-		
+	@SendTo("${apress.amqp.reply-exchange}" + "/" + "${apress.amqp.reply-routing-key}")
+	public Message<String> replyToProcess(String message) {
+	
 		// More Processing here...
 		
 		return MessageBuilder.withPayload("PROCESSED:OK")
 				.setHeader("PROCESSED", new SimpleDateFormat("yyyy-MM-dd").format(new Date()))
 				.setHeader("CODE", UUID.randomUUID().toString()).build();
 	}
-	
 }
 
-//======================================  Configuration ====================================//
+//======================================  Configuration =========================================//
 
 @Configuration
 @EnableConfigurationProperties(AMQPProperties.class)
@@ -109,49 +97,31 @@ class AMQPConfig {
 	@Autowired
 	ConnectionFactory connectionFactory;
 
-	@Value("${apress.amqp.reply-queue}")
-	String replyQueueName;
+	// the following beans are used to create queues & exchanges & bindings
+	// programmatically
+	// instead of creating it manually through rabbitMq web console.
 
-	// this bean is used by the RPC client to send messages to the spring-boot-queue not
-	// the replay queue
-	@Bean
-	public RabbitTemplate fixedReplyQueueRabbitTemplate() {
-		RabbitTemplate template = new RabbitTemplate(connectionFactory);
-		template.setReplyAddress(replyQueueName);
-		template.setReplyTimeout(60000L);
-		
-		return template;
-	}
-
-	//i'm not sure what this bean really do??
-	@Bean
-	public SimpleMessageListenerContainer replyListenerContainer() {
-		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-		container.setConnectionFactory(connectionFactory);
-		container.setQueues(replyQueue());
-		container.setMessageListener(fixedReplyQueueRabbitTemplate());
-		return container;
-	}
-
-	/**
-	 * >> u need to create the queue either manually through Rabbitmq web console
-	 *    or programmatically through this bean.
-	 * 
-	 * >> if u didn't create the queue manually or programmatically, then an exception
-	 *    will be thrown
-	 *    
-	 * >> if the queue already exist then this bean will not create a new queue
-	 */
-	//this bean is used to create the queue programmatically..
 	@Bean
 	public Queue queue(@Value("${apress.amqp.queue}") String queueName) {
 		return new Queue(queueName, false);
 	}
 
 	@Bean
-	public Queue replyQueue() {
+	public Queue replyQueue(@Value("${apress.amqp.reply-queue}") String replyQueueName) {
 		return new Queue(replyQueueName, false);
 	}
+
+	@Bean
+	DirectExchange replyExchange(@Value("${apress.amqp.reply-exchange}") String exchangeName) {
+		return new DirectExchange(exchangeName);
+	}
+
+	@Bean
+	Binding binding(Queue replyQueue, DirectExchange replyExchange,
+			@Value("${apress.amqp.reply-routing-key}") String routingKey) {
+		return BindingBuilder.bind(replyQueue).to(replyExchange).with(routingKey);
+	}
+
 }
 
 //======================================  Properties =========================================//
@@ -253,7 +223,7 @@ class AMQPAudit {
 	private static final String NEXT_LINE = "\n";
 	private static final Logger log = LoggerFactory.getLogger("AMQPAudit");
 
-	@Pointcut("execution(* spring_boot._5_amqp._4_rbc_model._2_fixed_reply_queue.*.*(..))")
+	@Pointcut("execution(* spring_boot._5_amqp._5_reply_using_send_to.*.*(..))")
 	public void logAMQP() {
 	};
 

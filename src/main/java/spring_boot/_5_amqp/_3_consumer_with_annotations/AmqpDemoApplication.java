@@ -77,15 +77,21 @@ class AnnotatedConsumer {
 class AMQPConfig {
 	
 	
-	//TODO: is this bean really needed ?? if we removed it, we still can send and
-	// listen to the message
+	/**
+	 * >> u need to create the queue either manually through Rabbitmq web console
+	 *    or programmatically through this bean.
+	 * 
+	 * >> if u didn't create the queue manually or programmatically, then an exception
+	 *    will be thrown
+	 *    
+	 * >> if the queue already exist then this bean will not create a new queue
+	 */
+	//this bean is used to create the queue programmatically..
 	@Bean
 	public Queue queue(@Value("${apress.amqp.queue}") String queueName) {
 		return new Queue(queueName, false);
 	}
 	
-	
-
 }
 
 //======================================  Properties =========================================//

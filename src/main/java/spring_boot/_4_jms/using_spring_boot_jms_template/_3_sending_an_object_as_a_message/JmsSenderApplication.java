@@ -179,8 +179,8 @@ class JMSProperties {
 @EnableConfigurationProperties(JMSProperties.class)
 class JMSConfig {
 
-	// this is bean is used to convert the Rate object that needs to be
-	// sent into the queue to a text message
+
+	//converts the object that will be sent to the queue into JSON
 	@Bean
 	public MessageConverter jacksonJmsMessageConverter() {
 		MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();

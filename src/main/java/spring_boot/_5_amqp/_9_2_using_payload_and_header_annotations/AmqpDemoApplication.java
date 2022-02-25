@@ -1,4 +1,4 @@
-package spring_boot._5_amqp._9_1_multi_listeners_based_on_object_type;
+package spring_boot._5_amqp._9_2_using_payload_and_header_annotations;
 
 import java.lang.reflect.Parameter;
 import java.util.stream.IntStream;
@@ -13,9 +13,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.rabbit.annotation.RabbitHandler;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,18 +40,10 @@ public class AmqpDemoApplication {
 	// routing key is similar to the queue name since we are using the default exchange type. this might change according to our needs.
 	@Bean
 	CommandLineRunner simple(@Value("${apress.amqp.exchange:}") String exchange,
-			@Value("${apress.amqp.queue}") String routingKey, Producer producer, RabbitTemplate template) {
-				
+			@Value("${apress.amqp.queue}") String routingKey, Producer producer) {
 		return args -> {
-			Invoice invoice = new Invoice(1, 25.64);
-			InvoiceWithTax invWithTax = new InvoiceWithTax(2, 30, 0.1F);
 			Item item = new Item("Apple", "Fruit");
-
-			producer.sendMessage(exchange, routingKey, invoice);
-			producer.sendMessage(exchange, routingKey, invWithTax);
-			producer.sendMessage(exchange, routingKey, item);
-
-
+			producer.sendItemMessage(exchange, routingKey, item);
 		};
 	}
 }
@@ -62,7 +52,6 @@ public class AmqpDemoApplication {
 
 @Component
 class Producer {
-	
 	private RabbitTemplate template;
 
 	@Autowired
@@ -70,189 +59,26 @@ class Producer {
 		this.template = template;
 	}
 
-	public void sendMessage(String exchange, String routingKey, Object obj) {
-		this.template.convertAndSend(exchange, routingKey, obj);
+	public void sendItemMessage(String exchange, String routingKey, Item item) {
+		this.template.convertAndSend(exchange, routingKey, item);
 	}
 }
 
 //======================================  Consumer ==========================================//
 
 @Component
-@RabbitListener(id = "multi", queues = "${apress.amqp.queue}")
-class MultiListenerService {
+class Consumer {
 
-	// will consume only the messages with pay-load of type Invoice
-	@RabbitHandler
+	@RabbitListener(queues = "${apress.amqp.queue}")
 	@SendTo("${apress.amqp.reply-queue}")
-	public Order processInvoice(Invoice invoice) {
-		Order order = new Order();
-
-		// Process Invoice here...
-
-		order.setInvoice(invoice);
-		return order;
-	}
-
-	// will consume only the messages with pay-load of type InvoiceWithTax
-	@RabbitHandler
-	@SendTo("${apress.amqp.reply-queue}")
-	public Order processInvoiceWithTax(InvoiceWithTax invoiceWithTax) {
-		Order order = new Order();
-
-		// Process Invoice with Tax here...
-
-		order.setInvoiceWithTax(invoiceWithTax);
-		return order;
-	}
-	
-	@RabbitHandler
-	@SendTo("${apress.amqp.reply-queue}")
-	public String itemProcess(@Header("amqp_receivedRoutingKey") String routingKey, @Payload Item item) {
+	public String itemProcess(@Header("amqp_receivedRoutingKey") String routingKey, //where did this header came from? i can't see it in the RabbitMQ admin web console
+			                  @Payload Item item) {
 		// Some Process here...
 		return "{\"message\": \"OK\"}";
 	}
 }
 
-//====================================== Domain ==================================================//
-class Order {
-
-	private Invoice invoice;
-
-	private InvoiceWithTax invoiceWithTax;
-
-	public Order() {
-
-	}
-
-	public Invoice getInvoice() {
-		return invoice;
-	}
-
-	public void setInvoice(Invoice invoice) {
-		this.invoice = invoice;
-	}
-
-	public InvoiceWithTax getInvoiceWithTax() {
-		return invoiceWithTax;
-	}
-
-	public void setInvoiceWithTax(InvoiceWithTax invoiceWithTax) {
-		this.invoiceWithTax = invoiceWithTax;
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("Order [invoice=");
-		builder.append(invoice);
-		builder.append(", invoiceWithTax=");
-		builder.append(invoiceWithTax);
-		builder.append("]");
-		return builder.toString();
-	}
-
-}
-
-class Invoice {
-
-	private int id;
-	private double totalPrice;
-
-	public Invoice() {
-
-	}
-
-	public Invoice(int id, double totalPrice) {
-
-		this.id = id;
-		this.totalPrice = totalPrice;
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public double getTotalPrice() {
-		return totalPrice;
-	}
-
-	public void setTotalPrice(double totalPrice) {
-		this.totalPrice = totalPrice;
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("Invoice [id=");
-		builder.append(id);
-		builder.append(", totalPrice=");
-		builder.append(totalPrice);
-		builder.append("]");
-		return builder.toString();
-	}
-
-}
-
-class InvoiceWithTax {
-
-	private int id;
-	private double totalPrice;
-	private float tax;
-
-	public InvoiceWithTax() {
-
-	}
-
-	public InvoiceWithTax(int id, double totalPrice, float tax) {
-
-		this.id = id;
-		this.totalPrice = totalPrice;
-		this.tax = tax;
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
-	public double getTotalPrice() {
-		return totalPrice;
-	}
-
-	public void setTotalPrice(double totalPrice) {
-		this.totalPrice = totalPrice;
-	}
-
-	public float getTax() {
-		return tax;
-	}
-
-	public void setTax(float tax) {
-		this.tax = tax;
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("InvoiceWithTax [id=");
-		builder.append(id);
-		builder.append(", totalPrice=");
-		builder.append(totalPrice);
-		builder.append(", tax=");
-		builder.append(tax);
-		builder.append("]");
-		return builder.toString();
-	}
-
-}
-
+//======================================  Domain ================================================//
 class Item {
 	
 	private String name;
@@ -303,13 +129,15 @@ class Item {
 class AMQPConfig {
 	
 	
-	@Bean
-	public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
-		RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-	    rabbitTemplate.setMessageConverter(jackson2MessageConverter());
-	    return rabbitTemplate;
-	}
-	
+	/**
+	 * >> u need to create the queue either manually through Rabbitmq web console
+	 *    or programmatically through this bean.
+	 * 
+	 * >> if u didn't create the queue manually or programmatically, then an exception
+	 *    will be thrown
+	 *    
+	 * >> if the queue already exist then this bean will not create a new queue
+	 */
 	//this bean is used to create the queue programmatically..
 	@Bean
 	public Queue queue(@Value("${apress.amqp.queue}") String queueName) {
@@ -317,13 +145,15 @@ class AMQPConfig {
 	}
 	
 	@Bean
-	public Queue replyQueue(@Value("${apress.amqp.reply-queue}") String queueName) {
-		return new Queue(queueName, false);
-	}	
+	public Queue replyQueue(@Value("${apress.amqp.reply-queue}") String replyQueueName) {
+		return new Queue(replyQueueName, false);
+	}
 	
+	// this bean converts the object that will be sent to the queue into JSON
+	// and also converts the JSON back to an object when being consumed with the listener
 	@Bean
 	public Jackson2JsonMessageConverter jackson2MessageConverter() {
-	    return new Jackson2JsonMessageConverter();
+		return new Jackson2JsonMessageConverter();
 	}
 	
 }
@@ -427,7 +257,7 @@ class AMQPAudit {
 	private static final String NEXT_LINE = "\n";
 	private static final Logger log = LoggerFactory.getLogger("AMQPAudit");
 
-	@Pointcut("execution(* spring_boot._5_amqp._9_1_multi_listeners_based_on_object_type.*.*(..))")
+	@Pointcut("execution(* spring_boot._5_amqp._9_2_using_payload_and_header_annotations.*.*(..))")
 	public void logAMQP() {
 	};
 

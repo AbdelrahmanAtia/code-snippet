@@ -1,4 +1,4 @@
-package spring_boot._5_amqp._9_2_using_payload_and_header_annotations;
+package spring_boot._5_amqp._9_2_access_message_structure_directly_using_payload_and_header_annotations;
 
 import java.lang.reflect.Parameter;
 import java.util.stream.IntStream;
@@ -257,7 +257,7 @@ class AMQPAudit {
 	private static final String NEXT_LINE = "\n";
 	private static final Logger log = LoggerFactory.getLogger("AMQPAudit");
 
-	@Pointcut("execution(* spring_boot._5_amqp._9_2_using_payload_and_header_annotations.*.*(..))")
+	@Pointcut("execution(* spring_boot._5_amqp._9_2_access_message_structure_directly_using_payload_and_header_annotations.*.*(..))")
 	public void logAMQP() {
 	};
 

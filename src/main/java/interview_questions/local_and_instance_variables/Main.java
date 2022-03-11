@@ -19,7 +19,7 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		//ex1();
+		ex1();
 		
 		ex2(); //print initial values of instance variables
 	}

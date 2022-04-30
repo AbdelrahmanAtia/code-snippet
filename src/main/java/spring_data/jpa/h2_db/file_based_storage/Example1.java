@@ -1,5 +1,4 @@
-
-package spring_data.jpa.in_memory_h2_db;
+package spring_data.jpa.h2_db.file_based_storage;
 
 import java.util.List;
 import java.util.Properties;
@@ -37,13 +36,16 @@ public class Example1 {
 		// with this property u can override the default URL "h2-console"
 		properties.put("spring.h2.console.path", "/my-h2-console");
 		
-		//use JDBC URL with a fixed database name "mydb" instead of automatically generating it 
-		//each time the application starts. u can get the JDBC URL with the generated database name 
-		//form the logs. for example you can find the following log:-
-		//2022-04-28 21:34:19.514 INFO  [] --- [main] o.s.b.a.h.H2ConsoleAutoConfiguration H2 console available at '/my-h2-console'. Database available at 'jdbc:h2:mem:085fee69-95b8-457e-9d49-a9164545d109'
-		properties.put("spring.datasource.url", "jdbc:h2:mem:mydb");
+		//using file storage instead of memory storage
+		//file storage is non-voltile unlike the memory storage
+		//the database state will be stored in the following file "h2database.mv.db" in the path specified after "file:" 
+		properties.put("spring.datasource.url", "jdbc:h2:file:C:\\Users\\ayoussef4\\OneDrive - DXC Production\\Desktop\\h2database");		
+		
+		//automatically drops the database tables if they exist and 
+		//then recreates them
+		properties.put("spring.jpa.hibernate.ddl-auto", "create-drop");
 
-
+		
 		SpringApplication app = new SpringApplication(Example1.class);
 		app.setDefaultProperties(properties);
 		app.run(args);
@@ -55,7 +57,7 @@ public class Example1 {
 		return (args) -> {
 
 			// set up
-			repository.save(new RecommendationEntity("1", 1, 1, "first author name", 4, "first recomendation content"));
+			repository.save(new RecommendationEntity("3", 1, 1, "first author name", 4, "first recomendation content"));
 			System.out.println("saved first entity............");
 
 			repository

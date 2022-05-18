@@ -1,0 +1,33 @@
+1- to build a gradle project, run the following command:-
+
+>> gradlew build
+#####################################################################################
+
+2- if you have multiple gradle projects with the following structure:- 
+microservices/
+├── product-composite-service
+├── product-service
+├── recommendation-service
+└── review-service
+
+you can build all of them with the following command [in windows os]:-
+
+>> cd microservices/product-composite-service & gradlew build & cd ../.. & ^
+cd microservices/product-service & gradlew build & cd ../.. & ^
+cd microservices/recommendation-service & gradlew build & cd ../.. & ^
+cd microservices/review-service & gradlew build & cd ../..
+
+
+>> '&' >> allows running multiple commands 
+>> '^' >> allows writing many commands on multiple lines.
+>> also ur cmd path should be the folder containing 'microservices'
+folder.
+
+#####################################################################################
+3- if u want to build multiple gradle projects with one single "gradlew build" command, follow the
+following:-
+
+>> 
+
+
+ 

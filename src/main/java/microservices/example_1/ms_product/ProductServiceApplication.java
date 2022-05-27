@@ -58,7 +58,7 @@ public class ProductServiceApplication {
 	 */
 }
 
-//===========================  DTOs ==========================//
+//=========================== API DTO ==========================//
 class Product {
 
 	private final int productId;

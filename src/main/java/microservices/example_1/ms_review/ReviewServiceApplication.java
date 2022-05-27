@@ -53,7 +53,7 @@ public class ReviewServiceApplication {
 	}
 }
 
-//===========================  DTOs ==========================//
+//===========================  API DTO ==========================//
 
 class Review {
 	private final int productId;

@@ -19,7 +19,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 })
 class ProductServiceApplicationTests {
 
-  @Autowired private WebTestClient client;
+  @Autowired 
+  private WebTestClient client;
 
   @Test
   void getProductById() {

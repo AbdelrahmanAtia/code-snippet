@@ -1,0 +1,92 @@
+###################################################################################################
+
+1- structure of gradle project:-
+
+1- build.gradle 
+2- gradle
+	    └── wrapper
+				├── gradle-wrapper.jar         
+				└── gradle-wrapper.properties
+
+3- gradlew
+4- gradlew.bat
+5- settings.gradle
+
+notes on each file:-
+------------------------
+1- build.gradle >> it is a file containing the build script for configuring the current project. it's like the pom.xml file 
+                   in maven. we declare our dependencies in it.
+                   
+2- gradle-wrapper.jar  >> The Gradle wrapper allows us to run a build with a specified version and settings without 
+                          the Gradle installation. This wrapper can be considered as a batch script on Windows and shell 
+                          script for other OS. When we invoke the Gradle with the wrapper, it automatically downloads 
+                          and builds the specified version.
+                          
+3- gradle-wrapper.properties >> it contains some properties used in gradle-wrapper.jar such as 
+                                (distributionUrl & zipStoreBase & zipStorePath & distributionBase & distributionPath)  
+                                
+4- gradlew >> is a Gradle wrapper script for UNIX based OS.
+5- gradlew.bat >> The bat is the Gradle Wrapper script for Windows.
+6- settings.gradle >> for configuring the Gradle build.                
+###################################################################################################
+2- to build a gradle project, run the following command:-
+
+>> gradlew build
+###################################################################################################
+
+3- if you have multiple gradle projects with the following structure:- 
+microservices/
+├── product-composite-service
+├── product-service
+├── recommendation-service
+└── review-service
+
+you can build all of them with the following command [in windows os]:-
+
+>> cd microservices/product-composite-service & gradlew build & cd ../.. & ^
+cd microservices/product-service & gradlew build & cd ../.. & ^
+cd microservices/recommendation-service & gradlew build & cd ../.. & ^
+cd microservices/review-service & gradlew build & cd ../..
+
+
+>> '&' >> allows running multiple commands at once
+>> '^' >> allows writing many commands on multiple lines.
+>> also ur cmd path should be the folder containing 'microservices'
+folder.
+
+#####################################################################################
+4- if u want to build multiple gradle projects with one single "gradlew build" command, follow the
+following:-
+
+>> suppose that you have multiple gradle projects with the following structure:- 
+microservices/
+	├── product-composite-service
+	├── product-service
+	├── recommendation-service
+	└── review-service
+
+then 
+
+1- in the parent folder of the microservices folder create settings.gradle and add to it 
+the paths of all the projects that u want to build as follows:-
+
+include ':microservices:product-service'
+include ':microservices:review-service'
+include ':microservices:recommendation-service'
+include ':microservices:product-composite-service'
+
+
+2- copy all the gradle executables [gradle folder & gradlew & gradlew.bat] from one of these projects so that we can reuse them for multi-projects
+build and past it into the parent folder of microservices folder.
+
+3- delete all these executables from all the projects as they are no longer needed.
+
+4- now u can build all these microservices with one command:-
+   gradlew build
+#####################################################################################   
+   
+
+ 
+
+
+ 

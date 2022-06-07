@@ -1,0 +1,19 @@
+>> to shutdown a spring boot app running on a certain port:-
+
+1- get the process id that uses that port using the following command:-
+
+>> netstat -aon | find "8080"
+
+the output of this command is as follows:-
+
+  TCP    0.0.0.0:8080           0.0.0.0:0              LISTENING       10824
+  TCP    [::]:8080              [::]:0                 LISTENING       10824
+  
+the last column is the process id..u can kill that process with the following 
+command:-
+
+>> taskkill /F /PID 10824
+
+
+
+

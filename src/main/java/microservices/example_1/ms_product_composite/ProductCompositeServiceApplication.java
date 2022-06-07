@@ -62,6 +62,8 @@ public class ProductCompositeServiceApplication {
 
 		Properties properties = new Properties();
 		properties.put("server.port", 7000);
+		properties.put("logging.level.root", "INFO");
+
 		
 		properties.put("app.product-service.host", "localhost");
 		properties.put("app.product-service.port", "7001");

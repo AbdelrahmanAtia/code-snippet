@@ -43,6 +43,7 @@ public class ProductServiceApplication {
 	public static void main(String[] args) {
 		Properties properties = new Properties();
 		properties.put("server.port", 7001);
+		properties.put("logging.level.root", "INFO");
 
 		SpringApplication app = new SpringApplication(ProductServiceApplication.class);
 		app.setWebApplicationType(WebApplicationType.REACTIVE);

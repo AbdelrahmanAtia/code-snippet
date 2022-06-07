@@ -44,6 +44,7 @@ public class RecommendationServiceApplication {
 
 		Properties properties = new Properties();
 		properties.put("server.port", 7002);
+		properties.put("logging.level.root", "INFO");
 
 		SpringApplication app = new SpringApplication(RecommendationServiceApplication.class);
 		app.setWebApplicationType(WebApplicationType.REACTIVE);

@@ -44,6 +44,7 @@ public class ReviewServiceApplication {
 
 		Properties properties = new Properties();
 		properties.put("server.port", 7003);
+		properties.put("logging.level.root", "INFO");
 
 		SpringApplication app = new SpringApplication(ReviewServiceApplication.class);
 		app.setWebApplicationType(WebApplicationType.REACTIVE);

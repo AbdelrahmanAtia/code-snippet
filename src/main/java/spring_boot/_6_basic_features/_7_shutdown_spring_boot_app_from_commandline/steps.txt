@@ -4,6 +4,12 @@
 
 >> netstat -aon | find "8080"
 
+-a Displays all connections and listening ports.
+
+-o Displays the owning process ID associated with each connection.
+
+-n Displays addresses and port numbers in numerical form.
+
 the output of this command is as follows:-
 
   TCP    0.0.0.0:8080           0.0.0.0:0              LISTENING       10824

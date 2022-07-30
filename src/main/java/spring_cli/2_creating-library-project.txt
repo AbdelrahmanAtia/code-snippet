@@ -1,0 +1,49 @@
+>> Does spring initializer support creation of library projects ?
+no
+======================================================================
+>> what is the structure of a library project ?
+
+it is the same as an application project, but without the main application
+class as well as some minor differences in the build.gradle file.
+The gradle plugin org.springframework.boot is replaced with an implementation 
+platform section:
+
+
+ext {
+    springBootVersion = '2.5.2'
+}
+
+dependencies {
+    implementation platform("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+}
+
+
+>> then add this library project for example 'util' as a dependency in any application project that uses it as follows:-
+
+dependencies {
+ implementation project(':util')
+}
+
+=================================================================================
+>> what is the diffrenece between (fat, thin, hollow, skinny) jars ?
+
+1- Skinny –> Contains ONLY the bits you literally type into your code editor, and NOTHING else.
+
+2- Thin   –> Contains all of the above PLUS the app’s direct dependencies of your 
+             app (db drivers, utility libraries, etc).
+
+3- Hollow –> The inverse of Thin – Contains only the bits needed to run your app but does 
+             NOT contain the app itself. Basically a pre-packaged “app server” to which you can later 
+             deploy your app, in the same style as traditional Java EE app servers, but with important differences.
+            
+4- Fat/Uber –> Contains the bit you literally write yourself PLUS the direct dependencies of your app 
+               PLUS the bits needed to run your app “on its own”.
+
+check image "skinny-thin-hollow-fat-jars.png" inside images folder
+=================================================================================
+
+
+
+
+
+

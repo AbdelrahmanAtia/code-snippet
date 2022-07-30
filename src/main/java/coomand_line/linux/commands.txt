@@ -1,0 +1,17 @@
+
+1- list all files in a directory and it's sub-directories:- 
+
+>> find microservices/product-service -type f
+==================================================================
+2- to list all files and their permissions and their sizes in a certain directory:-
+
+>> ls -l dir_path
+==================================================================
+3- to know the contents of a jar file, u can unzip it using the following command:-
+
+>> unzip -l jarName
+==================================================================
+
+
+
+

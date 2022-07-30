@@ -83,9 +83,30 @@ build and past it into the parent folder of microservices folder.
 
 4- now u can build all these microservices with one command:-
    gradlew build
-#####################################################################################   
    
+5- if u want to build only one microservice for example "the product service", use the following command:-
+gradlew :microservices:product-service:build   
 
+#####################################################################################   
+5- the following command "gradlew build" that is used to build a gradle
+application will generate two jars inside /build/libs/:-
+  a- the ordinary jar file
+  b- plain jar file containing only the class files resulting from 
+     compiling the Java files in the Spring Boot application 
+     
+if u don't need the second jar u can disable it by adding the following 
+to ur build.gradle file:- 
+
+jar {
+ enabled = false
+}
+ #####################################################################################   
+ 6- the tests are run automatically by gradle when performing a build:-
+ >> gradlew build
+ 
+ if u want to run the tests only (not the rest of the build) use:-
+ >> gradlew test
+  #####################################################################################   
  
 
 
